@@ -28,5 +28,13 @@ module.exports = {
     },
     transpileDependencies: [
         'quasar'
-    ]
+    ],
+    chainWebpack: conf => {
+        conf.module
+            .rule('glsl')
+            .test(/\.(vert|frag)$/i)
+            .use('raw-loader')
+            .loader('raw-loader')
+            .end();
+    }
 };

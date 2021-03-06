@@ -1,5 +1,6 @@
 import { ResourcePackLoader } from '@/renderer/ResourcePackLoader';
 import { BlockModel } from '@/renderer/models/BlockModel';
+import { ItemModel } from '@/renderer/models/ItemModel';
 
 export class ModelLoader {
     private rpLoader: ResourcePackLoader;
@@ -13,9 +14,16 @@ export class ModelLoader {
      * @param name 名前空間ID(?)
      * @returns THREE.Object3D
      */
-    public LoadModel(name: string) {
+    public LoadModel(name: string): THREE.Object3D {
         const rootModelData = this.rpLoader.GetModelData(name);
         const modelData = this.recursiveLoadModelData(rootModelData);
+
+        // 親が builtin/generated だった時はアイテムモデル
+        if (modelData.parent && modelData.parent === 'builtin/generated') {
+            return new ItemModel(this.rpLoader, modelData);
+        }
+
+        // TODO: builtin/entity に対応する(そのうち)
 
         return new BlockModel(this.rpLoader, modelData);
     }
