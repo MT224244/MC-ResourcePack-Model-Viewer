@@ -26,7 +26,7 @@ import { ResourcePackLoader } from '@/renderer/ResourcePackLoader';
 import { ModelLoader } from '@/renderer/ModelLoader';
 
 @Component
-export default class Home extends Vue {
+export default class ModelView extends Vue {
     @Ref('canvas')
     private canvas!: HTMLCanvasElement;
 
