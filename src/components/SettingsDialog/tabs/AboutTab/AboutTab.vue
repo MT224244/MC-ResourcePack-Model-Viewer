@@ -63,9 +63,5 @@ import { description, version, repository, license } from '@/../package.json';
         license
     })
 })
-export default class AboutTab extends Vue {
-    public mounted() {
-        console.log(version, repository);
-    }
-}
+export default class AboutTab extends Vue {}
 </script>
