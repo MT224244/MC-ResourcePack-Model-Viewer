@@ -1,5 +1,6 @@
-import { readFileSync } from 'fs';
+import { readFileSync, statSync } from 'fs';
 import path from 'path';
+import AdmZip from 'adm-zip';
 import * as THREE from 'three';
 
 import { generateErrTex } from '@/renderer/generateErrTex';
@@ -7,19 +8,41 @@ import { generateErrTex } from '@/renderer/generateErrTex';
 export class ResourcePackLoader {
     private readonly packPath: string;
 
+    /**
+     * zip/jarファイルのデータ\
+     * これがnullじゃなければ圧縮されたリソパを読み込んでる
+     */
+    private readonly zipData: AdmZip | null = null;
+
     private modelDataCache: { [key: string]: ModelData; } = {};
     private textureCache: { [key: string]: TextureData; } = {};
 
     public constructor(packPath: string) {
         this.packPath = packPath;
 
-        const packMcmeta: PackMcMeta = JSON.parse(readFileSync(path.join(packPath, 'pack.mcmeta'), 'utf-8'));
-        console.log('Pack description:', packMcmeta.pack.description);
-        console.log('Pack format:', packMcmeta.pack.pack_format);
+        if (statSync(packPath).isFile()) {
+            this.zipData = new AdmZip(packPath);
+        }
 
-        // TODO: そのうち対応する(多分)
-        if (packMcmeta.pack.pack_format !== 6) {
-            throw Error('このバージョンのリソースパックには現在対応していません');
+        const packMcmeta = this.GetPackMcmeta();
+        if (packMcmeta) {
+            console.log('Pack description:', packMcmeta.pack.description);
+            console.log('Pack format:', packMcmeta.pack.pack_format);
+        }
+        else {
+            console.warn('pack.mcmetaがありません');
+        }
+    }
+
+    /**
+     * pack.mcmetaを取得する
+     */
+    public GetPackMcmeta(): PackMcMeta | undefined {
+        try {
+            return JSON.parse(this.readFile('pack.mcmeta', 'utf-8'));
+        }
+        catch {
+            return undefined;
         }
     }
 
@@ -32,7 +55,7 @@ export class ResourcePackLoader {
         const filePath = this.resolvePath(id, 'models');
 
         if (!this.modelDataCache[filePath]) {
-            this.modelDataCache[filePath] = JSON.parse(readFileSync(filePath, 'utf-8'));
+            this.modelDataCache[filePath] = JSON.parse(this.readFile(filePath, 'utf-8'));
         }
 
         return this.modelDataCache[filePath];
@@ -48,7 +71,7 @@ export class ResourcePackLoader {
 
         if (!this.textureCache[filePath]) {
             try {
-                const blob = new Blob([readFileSync(filePath)]);
+                const blob = new Blob([this.readFile(filePath)]);
                 const texLoader = new THREE.TextureLoader();
                 const tex = await texLoader.loadAsync(URL.createObjectURL(blob));
                 tex.minFilter = THREE.NearestFilter;
@@ -81,7 +104,7 @@ export class ResourcePackLoader {
     private getTextureMcMeta(id: string): TextureMcMeta | undefined {
         try {
             const mcMetaPath = `${this.resolvePath(id, 'textures')}.mcmeta`;
-            return JSON.parse(readFileSync(mcMetaPath, 'utf-8'));
+            return JSON.parse(this.readFile(mcMetaPath, 'utf-8'));
         }
         catch {
             return undefined;
@@ -112,6 +135,37 @@ export class ResourcePackLoader {
             ext = '.png';
         }
 
-        return `${this.packPath}/assets/${namespace}/${target}/${fileName}${ext}`;
+        return `assets/${namespace}/${target}/${fileName}${ext}`;
+    }
+
+    /**
+     * ファイルを読み込む
+     * @param filePath ファイルのパス
+     * @param encoding エンコード
+     */
+    private readFile(filePath: string): Buffer;
+    private readFile(filePath: string, encoding: BufferEncoding): string;
+    private readFile(filePath: string, encoding?: BufferEncoding): Buffer | string {
+        try {
+            if (this.zipData) {
+                if (encoding) {
+                    return this.zipData.getEntry(filePath).getData().toString(encoding);
+                }
+                else {
+                    return this.zipData.getEntry(filePath).getData();
+                }
+            }
+            else {
+                if (encoding) {
+                    return readFileSync(path.join(this.packPath, filePath), encoding);
+                }
+                else {
+                    return readFileSync(path.join(this.packPath, filePath));
+                }
+            }
+        }
+        catch {
+            throw Error(`ファイルが存在しません: ${filePath}`);
+        }
     }
 }
