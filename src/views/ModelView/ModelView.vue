@@ -34,7 +34,10 @@ export default class Home extends Vue {
     private camera!: THREE.PerspectiveCamera;
 
     public async mounted() {
-        const rpLoader = new ResourcePackLoader('<ResourcePack Path>');
+        const rpLoader = new ResourcePackLoader();
+        rpLoader.AddResourcePack('<ResourcePack1 Path>');
+        rpLoader.AddResourcePack('<ResourcePack2 Pack>');
+
         const modelLoader = new ModelLoader(rpLoader);
 
         const stats = Stats();
@@ -85,9 +88,7 @@ export default class Home extends Vue {
         origin.position.set(-8, -8, -8);
         group.add(origin);
 
-        const modelData = modelLoader.LoadModelData('item/stone');
-        console.log(modelData.overrides);
-        const model = modelLoader.LoadModel(modelData);
+        const model = modelLoader.LoadModel('item/stone');
         origin.add(model);
 
         scene.add(new THREE.AmbientLight(0xffffff, 1));
