@@ -151,6 +151,17 @@ type IpcIHArgs = {
         args: [];
         return: void;
     };
+
+    'MCDirPicker_request-defaultMcDirPath': {
+        args: [];
+        return: string;
+    };
+    'MCDirPicker_open-dir-picker': {
+        args: [
+            currentPath: string
+        ];
+        return?: string;
+    };
 };
 
 /**

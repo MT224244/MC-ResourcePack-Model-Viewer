@@ -5,6 +5,7 @@
         transition-hide="fade"
         :content-style="{
             marginTop: '25px',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
             backdropFilter: 'blur(5px)'
         }"
         v-model="isOpen"
@@ -18,7 +19,7 @@
             >
                 <template #before>
                     <div class="column no-wrap full-height q-py-md">
-                        <!-- <q-tabs
+                        <q-tabs
                             dense
                             no-caps
                             vertical
@@ -28,7 +29,7 @@
                             v-model="selectedTab"
                         >
                             <q-tab name="settings" label="Settings" icon="mdi-cog"/>
-                        </q-tabs> -->
+                        </q-tabs>
                         <q-space/>
                         <q-tabs
                             dense
@@ -52,9 +53,9 @@
                         class="full-height"
                         v-model="selectedTab"
                     >
-                        <!-- <q-tab-panel name="settings">
+                        <q-tab-panel name="settings">
                             <SettingsTab/>
-                        </q-tab-panel> -->
+                        </q-tab-panel>
                         <q-tab-panel name="information">
                             <AboutTab/>
                         </q-tab-panel>
@@ -71,18 +72,18 @@
 <script lang="ts">
 import { Component, PropSync, Vue } from 'vue-property-decorator';
 
-// import { SettingsTab } from '@/components/SettingsDialog/tabs/SettingsTab';
+import { SettingsTab } from '@/components/SettingsDialog/tabs/SettingsTab';
 import { AboutTab } from '@/components/SettingsDialog/tabs/AboutTab';
 import { LicensesTab } from '@/components/SettingsDialog/tabs/LicensesTab';
 
 type TabName =
-    // | 'settings'
+    | 'settings'
     | 'information'
     | 'licenses';
 
 @Component({
     components: {
-        // SettingsTab,
+        SettingsTab,
         AboutTab,
         LicensesTab
     }
@@ -91,7 +92,7 @@ export default class SettingsDialog extends Vue {
     @PropSync('value')
     public isOpen!: boolean;
 
-    public selectedTab: TabName = 'information';
+    public selectedTab: TabName = 'settings';
 }
 </script>
 

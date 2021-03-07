@@ -30,7 +30,7 @@
         </q-bar>
 
         <q-page-container class="fixed-bottom content row">
-            <Home/>
+            <router-view/>
         </q-page-container>
 
         <SettingsDialog v-model="isSettingsDialogOpen"/>
@@ -44,13 +44,11 @@ import { IpcRenderer } from '@/renderer/IpcRenderer';
 
 import { version } from '@/../package.json';
 
-import { Home } from '@/views/Home';
 import { SystemButton } from '@/components/SystemButton';
 import { SettingsDialog } from '@/components/SettingsDialog';
 
 @Component({
     components: {
-        Home,
         SystemButton,
         SettingsDialog
     },

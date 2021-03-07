@@ -1,6 +1,7 @@
-import { app, protocol, shell, BrowserWindow, NewWindowWebContentsEvent } from 'electron';
+import { app, protocol, shell, dialog, BrowserWindow, NewWindowWebContentsEvent, IpcMainInvokeEvent } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
+import path from 'path';
 
 import { IpcMain } from '@/main/IpcMain';
 
@@ -101,6 +102,21 @@ const ipcMain_handleAppClose = () => {
     win.destroy();
 };
 
+const ipcMain_handleMCDirPickerRequestDefaultMcDirPath = () => {
+    return path.join(app.getPath('appData'), '.minecraft');
+};
+
+const ipcMain_handleMCDirPickerOpenDirPicker = (_e: IpcMainInvokeEvent, currentPath: string) => {
+    const dirs = dialog.showOpenDialogSync(win, {
+        properties: [
+            'openDirectory'
+        ],
+        defaultPath: currentPath
+    });
+
+    return dirs ? dirs[0] : undefined;
+};
+
 // #endregion
 
 const createWindow = async () => {
@@ -124,6 +140,9 @@ const createWindow = async () => {
     IpcMain.Handle('App_minimize', ipcMain_handleAppMinimize);
     IpcMain.Handle('App_maximize', ipcMain_handleAppMaximize);
     IpcMain.Handle('App_close', ipcMain_handleAppClose);
+
+    IpcMain.Handle('MCDirPicker_request-defaultMcDirPath', ipcMain_handleMCDirPickerRequestDefaultMcDirPath);
+    IpcMain.Handle('MCDirPicker_open-dir-picker', ipcMain_handleMCDirPickerOpenDirPicker);
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         // Load the url of the dev server if in development mode
