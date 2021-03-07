@@ -97,7 +97,8 @@ export class BlockModel extends THREE.Object3D {
 
                     const mat = new THREE.MeshStandardMaterial({
                         map: texData.texture,
-                        transparent: true
+                        transparent: true,
+                        alphaTest: 0.01
                     });
                     materials.push(mat);
 
