@@ -134,6 +134,11 @@ type TextureData = {
     animation?: TextureMcMeta['animation'];
 };
 
+interface DefaultAnimation extends Exclude<TextureMcMeta['animation'], undefined> {
+    interpolate: boolean;
+    frametime: number;
+}
+
 /**
  * IPC通信の引数定義\
  * Invoke, Handle用

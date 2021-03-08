@@ -4,11 +4,6 @@ import { ResourcePackLoader } from '@/renderer/ResourcePackLoader';
 import { TickTimer } from '@/renderer/TickTimer';
 import { generateErrTex } from '@/renderer/generateErrTex';
 
-interface DefaultAnimation extends Exclude<TextureMcMeta['animation'], undefined> {
-    interpolate: boolean;
-    frametime: number;
-}
-
 const defaultAnimation: DefaultAnimation = {
     interpolate: false,
     frametime: 1
