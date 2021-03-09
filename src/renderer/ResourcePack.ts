@@ -3,32 +3,85 @@ import path from 'path';
 import AdmZip from 'adm-zip';
 import * as THREE from 'three';
 
-export class ResourcePack {
-    private readonly packPath: string;
+import { IDisposable } from '@/renderer/IDisposable';
+
+export class ResourcePack implements IDisposable {
+    /**
+     * リソースパックのパス
+     */
+    public get PackPath() { return this.packPath; }
+    private packPath: string;
+
+    /**
+     * リソースパックのファイル(ディレクトリ)名
+     */
+    public get PackName() { return this.packName; }
+    private packName: string;
+
+    /**
+     * リソースパックの説明
+     */
+    public get PackDescription() { return this.packDescription; }
+    private packDescription?: string = undefined;
+
+    /**
+     * リソースパックのフォーマット番号
+     */
+    public get PackFormat() { return this.packFormat; }
+    private packFormat?: number = undefined;
+
+    /**
+     * リソースパックのアイコン(Blob URL)
+     */
+    public get PackIcon() { return this.packIcon; }
+    private packIcon?: string;
+
+    public get ErrorMessage() { return this.errorMessage; }
+    private errorMessage: string | null = null;
 
     /**
      * zip/jarファイルのデータ\
      * これがnullじゃなければ圧縮されたリソパを読み込んでる
      */
-    private readonly zipData: AdmZip | null = null;
+    private zipData: AdmZip | null = null;
 
     private modelDataCache: { [key: string]: ModelData; } = {};
     private textureCache: { [key: string]: TextureData; } = {};
 
     public constructor(packPath: string) {
         this.packPath = packPath;
+        this.packName = path.basename(packPath);
 
-        if (statSync(packPath).isFile()) {
-            this.zipData = new AdmZip(packPath);
-        }
+        try {
+            if (statSync(packPath).isFile()) {
+                try {
+                    this.zipData = new AdmZip(packPath);
+                }
+                catch {
+                    this.errorMessage = '読み込めませんでした';
+                    throw Error;
+                }
+            }
 
-        const packMcmeta = this.GetPackMcmeta();
-        if (packMcmeta) {
-            console.log('Pack description:', packMcmeta.pack.description);
-            console.log('Pack format:', packMcmeta.pack.pack_format);
+            const packMcmeta = this.GetPackMcmeta();
+            if (packMcmeta) {
+                this.packDescription = packMcmeta.pack.description;
+                this.packFormat = packMcmeta.pack.pack_format;
+            }
+            else {
+                this.errorMessage = 'pack.mcmeta がありません';
+                throw Error;
+            }
+
+            try {
+                this.packIcon = URL.createObjectURL(new Blob([this.readFile('pack.png')]));
+            }
+            catch {
+                this.errorMessage = 'pack.png がありません';
+            }
         }
-        else {
-            console.warn('pack.mcmetaがありません');
+        catch {
+            this.Dispose();
         }
     }
 
@@ -37,7 +90,7 @@ export class ResourcePack {
      */
     public GetPackMcmeta(): PackMcMeta | undefined {
         try {
-            return JSON.parse(this.readFile('pack.mcmeta', 'utf-8'));
+            return JSON.parse(this.readFile('pack.mcmeta', 'utf-8').replace(/[\n\r]/g, ''));
         }
         catch {
             return undefined;
@@ -83,6 +136,19 @@ export class ResourcePack {
         }
 
         return this.textureCache[filePath];
+    }
+
+    public Dispose() {
+        for (const key of Object.keys(this.modelDataCache)) {
+            delete this.modelDataCache[key];
+        }
+
+        for (const key of Object.keys(this.textureCache)) {
+            this.textureCache[key].texture.dispose();
+            delete this.textureCache[key];
+        }
+
+        this.zipData = null;
     }
 
     /**

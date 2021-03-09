@@ -2,15 +2,35 @@ import { ResourcePack } from '@/renderer/ResourcePack';
 import { generateErrTex } from '@/renderer/generateErrTex';
 
 export class ResourcePackLoader {
+    public get ResourcePacks() { return this.resourcePacks; }
     private resourcePacks: ResourcePack[] = [];
 
+    /**
+     * リソースパックを追加する
+     * @param packPath リソパのパス(ディレクトリでもzipでも可)
+     */
     public AddResourcePack(packPath: string) {
+        // 同じリソパは読み込まない
+        if (this.resourcePacks.find(x => x.PackPath === packPath)) return;
+
         try {
             const rp = new ResourcePack(packPath);
             this.resourcePacks.splice(0, 0, rp);
         }
         catch {
             throw Error('リソースパックを読み込めませんでした');
+        }
+    }
+
+    /**
+     * リソースパックを削除する
+     * @param packPath リソパのパス
+     */
+    public RemoveResourcePack(packPath: string) {
+        const idx = this.resourcePacks.findIndex(x => x.PackPath === packPath);
+        if (idx > -1) {
+            this.resourcePacks[idx].Dispose();
+            this.resourcePacks.splice(idx, 1);
         }
     }
 

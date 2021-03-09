@@ -9,7 +9,9 @@
             :value="true"
         >
             <q-scroll-area class="fit">
-                <div class="q-pa-sm"/>
+                <div class="q-pa-sm">
+                    <q-btn label="戻る" @click="btnReturn_onClick"/>
+                </div>
             </q-scroll-area>
         </q-drawer>
         <q-resize-observer @resize="onResize"/>
@@ -22,7 +24,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import * as THREE from 'three';
 
-import { ResourcePackLoader } from '@/renderer/ResourcePackLoader';
+import { Global } from '@/renderer/Global';
 import { ModelLoader } from '@/renderer/ModelLoader';
 
 @Component
@@ -30,15 +32,15 @@ export default class ModelView extends Vue {
     @Ref('canvas')
     private canvas!: HTMLCanvasElement;
 
-    private renderer!: THREE.WebGLRenderer;
+    private renderer!: THREE.WebGLRenderer | null;
     private camera!: THREE.PerspectiveCamera;
+    private controls!: OrbitControls;
+    private scene!: THREE.Scene;
+
+    private model!: THREE.Object3D;
 
     public async mounted() {
-        const rpLoader = new ResourcePackLoader();
-        rpLoader.AddResourcePack('<ResourcePack1 Path>');
-        rpLoader.AddResourcePack('<ResourcePack2 Pack>');
-
-        const modelLoader = new ModelLoader(rpLoader);
+        const modelLoader = new ModelLoader(Global.ResourcePackLoader);
 
         const stats = Stats();
         stats.dom.style.position = 'absolute';
@@ -58,17 +60,17 @@ export default class ModelView extends Vue {
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.$el.clientWidth, this.$el.clientHeight);
 
-        const scene = new THREE.Scene();
+        this.scene = new THREE.Scene();
 
         const aspect = this.$el.clientWidth / this.$el.clientHeight;
         this.camera = new THREE.PerspectiveCamera(45, aspect, 1, 2000);
         // this.camera = new THREE.OrthographicCamera(-15, 15, 15, -15);
-        const controls = new OrbitControls(this.camera, this.canvas);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.1;
-        controls.minDistance = 10;
-        controls.maxDistance = 100;
-        controls.update();
+        this.controls = new OrbitControls(this.camera, this.canvas);
+        this.controls.enableDamping = true;
+        this.controls.dampingFactor = 0.1;
+        this.controls.minDistance = 10;
+        this.controls.maxDistance = 100;
+        this.controls.update();
 
         this.camera.position.z = 50;
 
@@ -76,7 +78,7 @@ export default class ModelView extends Vue {
 
         const group = new THREE.Group();
         group.position.set(0, 0, 0);
-        scene.add(group);
+        this.scene.add(group);
 
         const grid = new THREE.GridHelper(16, 16);
         grid.position.set(0, -8, 0);
@@ -88,16 +90,18 @@ export default class ModelView extends Vue {
         origin.position.set(-8, -8, -8);
         group.add(origin);
 
-        const model = modelLoader.LoadModel('item/stone');
-        origin.add(model);
+        this.model = modelLoader.LoadModel('block/stone');
+        origin.add(this.model);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 1));
+        this.scene.add(new THREE.AmbientLight(0xffffff, 1));
 
         const render = () => {
-            controls.update();
+            if (!this.renderer) return;
+
+            this.controls.update();
 
             stats.begin();
-            this.renderer.render(scene, this.camera);
+            this.renderer.render(this.scene, this.camera);
             stats.end();
             stats.update();
 
@@ -113,6 +117,44 @@ export default class ModelView extends Vue {
 
         this.camera.aspect = size.width / size.height;
         this.camera.updateProjectionMatrix();
+    }
+
+    private btnReturn_onClick() {
+        try {
+            if (!this.renderer) return;
+
+            this.controls.dispose();
+            this.recursiveDispose(this.scene.children);
+            this.renderer.dispose();
+
+            this.renderer = null;
+        }
+        finally {
+            this.$router.replace('/modellist');
+        }
+    }
+
+    private recursiveDispose(objects: (THREE.Object3D | THREE.Mesh)[]) {
+        if (objects.length < 1) return;
+
+        for (const obj of objects) {
+            if (obj.children) {
+                this.recursiveDispose(obj.children);
+            }
+
+            if (obj instanceof THREE.Mesh) {
+                obj.geometry.dispose();
+
+                if (obj.material instanceof Array) {
+                    for (const mat of obj.material) {
+                        mat.dispose();
+                    }
+                }
+                else {
+                    obj.material.dispose();
+                }
+            }
+        }
     }
 }
 </script>
