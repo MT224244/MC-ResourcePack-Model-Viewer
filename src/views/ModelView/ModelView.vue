@@ -25,6 +25,7 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 import * as THREE from 'three';
 
 import { Global } from '@/renderer/Global';
+import { IModel } from '@/renderer/IModel';
 import { ModelLoader } from '@/renderer/ModelLoader';
 
 @Component
@@ -37,7 +38,7 @@ export default class ModelView extends Vue {
     private controls!: OrbitControls;
     private scene!: THREE.Scene;
 
-    private model!: THREE.Object3D;
+    private model: IModel | null = null;
 
     public async mounted() {
         const modelLoader = new ModelLoader(Global.ResourcePackLoader);
@@ -76,24 +77,23 @@ export default class ModelView extends Vue {
 
         this.camera.lookAt(0, 0, 0);
 
-        const group = new THREE.Group();
-        group.position.set(0, 0, 0);
-        this.scene.add(group);
+        const rootGroup = new THREE.Group();
+        rootGroup.position.set(-8, -8, -8);
+        this.scene.add(rootGroup);
 
         const grid = new THREE.GridHelper(16, 16);
-        grid.position.set(0, -8, 0);
-        group.add(grid);
+        grid.position.set(8, 0, 8);
+        rootGroup.add(grid);
 
         const geometry = new THREE.SphereGeometry(0.2);
         const material = new THREE.MeshStandardMaterial({ color: 'red' });
         const origin = new THREE.Mesh(geometry, material);
-        origin.position.set(-8, -8, -8);
-        group.add(origin);
+        rootGroup.add(origin);
 
         this.model = modelLoader.LoadModel('block/stone');
-        origin.add(this.model);
+        rootGroup.add(this.model);
 
-        this.scene.add(new THREE.AmbientLight(0xffffff, 1));
+        rootGroup.add(new THREE.AmbientLight(0xffffff, 1));
 
         const render = () => {
             if (!this.renderer) return;
@@ -103,7 +103,6 @@ export default class ModelView extends Vue {
             stats.begin();
             this.renderer.render(this.scene, this.camera);
             stats.end();
-            stats.update();
 
             requestAnimationFrame(render);
         };
@@ -122,38 +121,37 @@ export default class ModelView extends Vue {
     private btnReturn_onClick() {
         try {
             if (!this.renderer) return;
+            const rootGroup: THREE.Group | null = this.scene.children[0] as THREE.Group;
 
-            this.controls.dispose();
-            this.recursiveDispose(this.scene.children);
+            if (this.model) {
+                this.model.Dispose();
+                rootGroup.remove(this.model);
+            }
+
+            while (rootGroup.children.length > 0) {
+                const obj = rootGroup.children[0] as IModel | THREE.Object3D;
+
+                if (obj instanceof THREE.Mesh) {
+                    // origin
+                    (obj.material as THREE.MeshStandardMaterial).dispose();
+                    obj.geometry.dispose();
+                }
+                else if (obj instanceof THREE.GridHelper) {
+                    // grid
+                    (obj.material as THREE.LineBasicMaterial).dispose();
+                    obj.geometry.dispose();
+                }
+
+                rootGroup.remove(obj);
+            }
+
+            this.scene.remove(rootGroup);
+
             this.renderer.dispose();
-
             this.renderer = null;
         }
         finally {
             this.$router.replace('/modellist');
-        }
-    }
-
-    private recursiveDispose(objects: (THREE.Object3D | THREE.Mesh)[]) {
-        if (objects.length < 1) return;
-
-        for (const obj of objects) {
-            if (obj.children) {
-                this.recursiveDispose(obj.children);
-            }
-
-            if (obj instanceof THREE.Mesh) {
-                obj.geometry.dispose();
-
-                if (obj.material instanceof Array) {
-                    for (const mat of obj.material) {
-                        mat.dispose();
-                    }
-                }
-                else {
-                    obj.material.dispose();
-                }
-            }
         }
     }
 }

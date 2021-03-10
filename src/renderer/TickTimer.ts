@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events';
 
+import { IDisposable } from '@/renderer/IDisposable';
+
 type CallbackData = {
     idx: number;
     now: number;
@@ -12,9 +14,11 @@ type CallbackData = {
  */
 const MC_TICK = 20;
 
-export class TickTimer extends EventEmitter {
+export class TickTimer extends EventEmitter implements IDisposable {
     // ちょっと早くしてる(本来は1000)
     private readonly interval = 950 / MC_TICK;
+
+    private isDispose = false;
 
     private before = 0;
 
@@ -34,6 +38,12 @@ export class TickTimer extends EventEmitter {
         });
     }
 
+    public Dispose() {
+        this.isDispose = true;
+        this.removeAllListeners();
+        this.callbacks.length = 0;
+    }
+
     public on(event: 'tick', listener: () => void): this;
     public on(event: string | symbol, listener: (...args: unknown[]) => void) {
         return super.on(event, listener);
@@ -50,6 +60,8 @@ export class TickTimer extends EventEmitter {
     }
 
     private loop() {
+        if (this.isDispose) return;
+
         const now = performance.now();
         const elapsed = now - this.before;
         setTimeout(this.loop.bind(this), 5);

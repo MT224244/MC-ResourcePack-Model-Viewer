@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+import { IModel } from '@/renderer/IModel';
 import { ResourcePackLoader } from '@/renderer/ResourcePackLoader';
 import { TickTimer } from '@/renderer/TickTimer';
 
@@ -14,7 +15,7 @@ const defaultAnimation: DefaultAnimation = {
 const posAttrArray: number[][] = [];
 const colorAttrArray: number[][] = [];
 
-export class ItemModel extends THREE.Object3D {
+export class ItemModel extends THREE.Object3D implements IModel {
     private rpLoader: ResourcePackLoader;
 
     private timer: TickTimer;
@@ -32,7 +33,11 @@ export class ItemModel extends THREE.Object3D {
                     if (!texName.startsWith('layer')) continue;
 
                     const { texture, animation } = textures[texName];
-                    const img: HTMLImageElement = texture.image;
+                    const img = (texture.image as HTMLImageElement).cloneNode(true) as HTMLImageElement;
+
+                    // もう使わないので破棄
+                    delete textures[texName];
+                    texture.dispose();
 
                     const anm = this.resolveAnimation(img, animation);
 
@@ -86,6 +91,20 @@ export class ItemModel extends THREE.Object3D {
         }
 
         this.timer.Start();
+    }
+
+    public Dispose() {
+        this.timer.Dispose();
+
+        // オブジェクトを破棄
+        while (this.children.length > 0) {
+            const mesh = this.children[0] as THREE.Mesh;
+
+            (mesh.material as THREE.RawShaderMaterial).dispose();
+            mesh.geometry.dispose();
+
+            this.remove(mesh);
+        }
     }
 
     /**

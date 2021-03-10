@@ -1,3 +1,4 @@
+import { IModel } from '@/renderer/IModel';
 import { ResourcePackLoader } from '@/renderer/ResourcePackLoader';
 import { BlockModel } from '@/renderer/models/BlockModel';
 import { ItemModel } from '@/renderer/models/ItemModel';
@@ -14,7 +15,7 @@ export class ModelLoader {
      * @param name 名前空間ID(?)
      * @returns THREE.Object3D
      */
-    public LoadModel(name: string): THREE.Object3D {
+    public LoadModel(name: string): IModel {
         const rootModelData = this.rpLoader.GetModelData(name);
         const modelData = this.recursiveLoadModelData(rootModelData);
 

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+import { IModel } from '@/renderer/IModel';
 import { ResourcePackLoader } from '@/renderer/ResourcePackLoader';
 import { TickTimer } from '@/renderer/TickTimer';
 import { generateErrTex } from '@/renderer/generateErrTex';
@@ -9,7 +10,7 @@ const defaultAnimation: DefaultAnimation = {
     frametime: 1
 };
 
-export class BlockModel extends THREE.Object3D {
+export class BlockModel extends THREE.Object3D implements IModel {
     private rpLoader: ResourcePackLoader;
     private modelData: ModelData;
     private textures: { [key: string]: TextureData; } = {};
@@ -34,6 +35,42 @@ export class BlockModel extends THREE.Object3D {
                 }
             }
         });
+    }
+
+    public Dispose() {
+        this.timer.Dispose();
+
+        // オブジェクトを破棄
+        while (this.children.length > 0) {
+            const cubeRootObj = this.children[0];
+
+            // 本体とinterpolate用で2つMeshが入ってる
+            while (cubeRootObj.children.length > 0) {
+                const mesh = cubeRootObj.children[0] as THREE.Mesh;
+
+                for (const material of mesh.material as (THREE.MeshStandardMaterial | undefined)[]) {
+                    if (material) {
+                        // Textureは下でまとめてdisposeする
+                        material.map = null;
+                        material.dispose();
+                    }
+                }
+
+                mesh.geometry.dispose();
+
+                cubeRootObj.remove(mesh);
+            }
+
+            this.remove(cubeRootObj);
+        }
+
+        // テクスチャを破棄
+        for (const tex of Object.keys(this.textures)) {
+            this.textures[tex].texture.dispose();
+            delete this.textures[tex];
+        }
+
+        this.errTexture.dispose();
     }
 
     private async loadTextures() {
@@ -62,7 +99,7 @@ export class BlockModel extends THREE.Object3D {
     private createCube(element: ModelElement) {
         const { from, to, rotation, faces } = element;
 
-        const wrapperObj = new THREE.Object3D();
+        const cubeRootObj = new THREE.Object3D();
 
         const size = {
             x: to[0] - from[0],
@@ -126,17 +163,17 @@ export class BlockModel extends THREE.Object3D {
 
         const cube = new THREE.Mesh(geom, materials as THREE.Material[]);
         cube.position.set(pos.x, pos.y, pos.z);
-        wrapperObj.add(cube);
+        cubeRootObj.add(cube);
 
         const cubeCrossfade = new THREE.Mesh(geomCrossfade, materialsCrossfade as THREE.Material[]);
         cubeCrossfade.position.set(pos.x, pos.y, pos.z);
-        wrapperObj.add(cubeCrossfade);
+        cubeRootObj.add(cubeCrossfade);
 
         if (rotation) {
-            this.rotateCube(rotation, wrapperObj, cube, cubeCrossfade);
+            this.rotateCube(rotation, cubeRootObj, cube, cubeCrossfade);
         }
 
-        return wrapperObj;
+        return cubeRootObj;
     }
 
     /**
