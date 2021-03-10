@@ -45,9 +45,6 @@ export class ResourcePack implements IDisposable {
      */
     private zipData: AdmZip | null = null;
 
-    private modelDataCache: { [key: string]: ModelData; } = {};
-    private textureCache: { [key: string]: TextureData; } = {};
-
     public constructor(packPath: string) {
         this.packPath = packPath;
         this.packName = path.basename(packPath);
@@ -105,11 +102,7 @@ export class ResourcePack implements IDisposable {
     public GetModelData(id: string): ModelData {
         const filePath = this.resolvePath(id, 'models');
 
-        if (!this.modelDataCache[filePath]) {
-            this.modelDataCache[filePath] = JSON.parse(this.readFile(filePath, 'utf-8'));
-        }
-
-        return this.modelDataCache[filePath];
+        return JSON.parse(this.readFile(filePath, 'utf-8'));
     }
 
     /**
@@ -120,34 +113,21 @@ export class ResourcePack implements IDisposable {
     public async GetTexture(id: string): Promise<TextureData> {
         const filePath = this.resolvePath(id, 'textures');
 
-        if (!this.textureCache[filePath]) {
-            const blob = new Blob([this.readFile(filePath)]);
-            const texLoader = new THREE.TextureLoader();
-            const tex = await texLoader.loadAsync(URL.createObjectURL(blob));
-            tex.minFilter = THREE.NearestFilter;
-            tex.magFilter = THREE.NearestFilter;
+        const blob = new Blob([this.readFile(filePath)]);
+        const texLoader = new THREE.TextureLoader();
+        const tex = await texLoader.loadAsync(URL.createObjectURL(blob));
+        tex.minFilter = THREE.NearestFilter;
+        tex.magFilter = THREE.NearestFilter;
 
-            const metaData = this.getTextureMcMeta(id);
+        const metaData = this.getTextureMcMeta(id);
 
-            this.textureCache[filePath] = {
-                texture: tex,
-                animation: metaData && metaData.animation
-            };
-        }
-
-        return this.textureCache[filePath];
+        return {
+            texture: tex,
+            animation: metaData && metaData.animation
+        };
     }
 
     public Dispose() {
-        for (const key of Object.keys(this.modelDataCache)) {
-            delete this.modelDataCache[key];
-        }
-
-        for (const key of Object.keys(this.textureCache)) {
-            this.textureCache[key].texture.dispose();
-            delete this.textureCache[key];
-        }
-
         this.zipData = null;
     }
 
