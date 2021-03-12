@@ -12,9 +12,6 @@ const defaultAnimation: DefaultAnimation = {
     frametime: 1
 };
 
-const posAttrArray: number[][] = [];
-const colorAttrArray: number[][] = [];
-
 export class ItemModel extends THREE.Object3D implements IModel {
     private rpLoader: ResourcePackLoader;
 
@@ -232,6 +229,9 @@ export class ItemModel extends THREE.Object3D implements IModel {
         const pixelHeight = 16 / height;
 
         const z = 7.5;
+
+        const posAttrArray: number[][] = [];
+        const colorAttrArray: number[][] = [];
 
         for (const colorDataIdx of [...Array(colorData.length).keys()]) {
             posAttrArray.push([]);
