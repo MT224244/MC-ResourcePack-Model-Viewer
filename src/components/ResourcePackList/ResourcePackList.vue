@@ -73,14 +73,14 @@
                 flat
                 size="sm"
                 icon="mdi-chevron-up"
-                :disable="!selectedPack"
+                :disable="!selectedPack || selectedIdx <= 0"
                 @click="btnMoveUp_onClick"
             />
             <q-btn
                 flat
                 size="sm"
                 icon="mdi-chevron-down"
-                :disable="!selectedPack"
+                :disable="!selectedPack || selectedIdx >= resourcePacks.length - 1"
                 @click="btnMoveDown_onClick"
             />
             <q-btn
@@ -103,10 +103,14 @@ import { ResourcePack } from '@/renderer/ResourcePack';
 
 @Component
 export default class ResourcePackList extends Vue {
-    @PropSync('value')
-    private readonly selectedPack!: ResourcePack;
+    @PropSync('value', { type: Object, default: null })
+    private readonly selectedPack!: ResourcePack | null;
 
     private resourcePacks: ResourcePack[] = [];
+
+    private get selectedIdx() {
+        return this.resourcePacks.findIndex(x => x === this.selectedPack);
+    }
 
     public mounted() {
         // 配列の参照自体を渡してるので変更が連動する
@@ -127,15 +131,40 @@ export default class ResourcePackList extends Vue {
     }
 
     private btnMoveUp_onClick() {
-        // TODO:
+        if (!this.selectedPack) return;
+        const idx = this.selectedIdx;
+
+        const pack = this.resourcePacks.splice(idx, 1)[0];
+        this.resourcePacks.splice(idx - 1, 0, pack);
     }
 
     private btnMoveDown_onClick() {
-        // TODO:
+        if (!this.selectedPack) return;
+        const idx = this.selectedIdx;
+
+        const pack = this.resourcePacks.splice(idx, 1)[0];
+        this.resourcePacks.splice(idx + 1, 0, pack);
     }
 
     private btnRemove_onClick() {
-        // TODO:
+        if (!this.selectedPack) return;
+        let idx = this.selectedIdx;
+
+        Global.ResourcePackLoader.RemoveResourcePack(this.selectedPack.PackPath);
+
+        if (this.resourcePacks.length > 0) {
+            if (idx === 0) {
+                idx = 0;
+            }
+            else if (idx > this.resourcePacks.length - 1) {
+                idx = this.resourcePacks.length - 1;
+            }
+
+            this.emitInput(this.resourcePacks[idx]);
+        }
+        else {
+            this.emitInput(null);
+        }
     }
 }
 </script>
