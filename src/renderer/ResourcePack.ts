@@ -1,4 +1,4 @@
-import { readFileSync, statSync } from 'fs';
+import { readFileSync, statSync, readdirSync } from 'fs';
 import path from 'path';
 import AdmZip from 'adm-zip';
 import * as THREE from 'three';
@@ -62,6 +62,11 @@ export class ResourcePack implements IDisposable {
 
             const packMcmeta = this.GetPackMcmeta();
             if (packMcmeta) {
+                if (packMcmeta.pack.pack_format < 4) {
+                    this.errorMessage = 'サポートされていないフォーマットです';
+                    throw Error;
+                }
+
                 this.packDescription = packMcmeta.pack.description;
                 this.packFormat = packMcmeta.pack.pack_format;
             }
@@ -92,6 +97,20 @@ export class ResourcePack implements IDisposable {
         catch {
             return undefined;
         }
+    }
+
+    /**
+     * ブロックモデルの名前空間リストを取得する
+     */
+    public GetBlockModelIds(): string[] {
+        return this.getModelIds('block');
+    }
+
+    /**
+     * アイテムモデルの名前空間リストを取得する
+     */
+    public GetItemModelIds(): string[] {
+        return this.getModelIds('item');
     }
 
     /**
@@ -143,6 +162,47 @@ export class ResourcePack implements IDisposable {
         }
         catch {
             return undefined;
+        }
+    }
+
+    /**
+     * modelsの名前空間IDを生成する
+     * @param target
+     * @returns 名前空間ID
+     */
+    private getModelIds(target: 'block' | 'item') {
+        try {
+            if (this.zipData) {
+                const regex = new RegExp(`^assets/([^/]*)/models/${target}/([^.]*)\\.json`);
+
+                return this.zipData.getEntries()
+                    .filter(x => x.entryName.startsWith('assets'))
+                    .map(x => (regex.exec(x.entryName) || []) as RegExpExecArray)
+                    .filter(x => x.length > 0)
+                    .map(x => `${x[1]}:${target}/${x[2]}`);
+            }
+            else {
+                const assetsDir = path.join(this.packPath, 'assets');
+                const array: string[] = [];
+
+                for (const namespace of readdirSync(assetsDir)) {
+                    if (!statSync(path.join(assetsDir, namespace)).isDirectory()) continue;
+
+                    try {
+                        array.push(
+                            ...readdirSync(path.join(assetsDir, namespace, 'models', target))
+                                .filter(x => x.endsWith('.json'))
+                                .map(x => `${namespace}:${target}/${path.basename(x, '.json')}`)
+                        );
+                    }
+                    catch {}
+                }
+
+                return array;
+            }
+        }
+        catch {
+            return [];
         }
     }
 

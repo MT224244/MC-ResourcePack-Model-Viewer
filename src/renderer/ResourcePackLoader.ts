@@ -35,6 +35,32 @@ export class ResourcePackLoader {
     }
 
     /**
+     * ブロックモデルの名前空間リストを取得する
+     */
+    public GetBlockModelIds() {
+        const array: string[] = [];
+
+        for (const rp of this.resourcePacks) {
+            array.push(...rp.GetBlockModelIds());
+        }
+
+        return [...new Set(array)];
+    }
+
+    /**
+     * アイテムモデルの名前空間リストを取得する
+     */
+    public GetItemModelIds() {
+        const array: string[] = [];
+
+        for (const rp of this.resourcePacks) {
+            array.push(...rp.GetItemModelIds());
+        }
+
+        return [...new Set(array)];
+    }
+
+    /**
      * モデルデータを読み込みます
      * @param id 名前空間ID
      * @returns モデルデータ
