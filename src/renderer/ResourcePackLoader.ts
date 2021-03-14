@@ -44,7 +44,7 @@ export class ResourcePackLoader {
             array.push(...rp.GetBlockModelIds());
         }
 
-        return [...new Set(array)];
+        return [...new Set(array)].sort();
     }
 
     /**
@@ -57,7 +57,7 @@ export class ResourcePackLoader {
             array.push(...rp.GetItemModelIds());
         }
 
-        return [...new Set(array)];
+        return [...new Set(array)].sort();
     }
 
     /**
