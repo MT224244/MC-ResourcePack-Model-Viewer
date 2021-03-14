@@ -258,10 +258,10 @@ export class BlockModel extends THREE.Object3D implements IModel {
                 geometry.attributes.uv.setXY(uvStartIdx + 3, uv.x2, uv.y1);
             }
             else if (face.rotation === 180) {
-                geometry.attributes.uv.setXY(uvStartIdx + 0, uv.x1, uv.y1);
-                geometry.attributes.uv.setXY(uvStartIdx + 1, uv.x2, uv.y1);
-                geometry.attributes.uv.setXY(uvStartIdx + 2, uv.x1, uv.y2);
-                geometry.attributes.uv.setXY(uvStartIdx + 3, uv.x2, uv.y2);
+                geometry.attributes.uv.setXY(uvStartIdx + 0, uv.x1, uv.y2);
+                geometry.attributes.uv.setXY(uvStartIdx + 1, uv.x2, uv.y2);
+                geometry.attributes.uv.setXY(uvStartIdx + 2, uv.x1, uv.y1);
+                geometry.attributes.uv.setXY(uvStartIdx + 3, uv.x2, uv.y1);
             }
             else {
                 geometry.attributes.uv.setXY(uvStartIdx + 0, uv.x2, uv.y1);
