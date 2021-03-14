@@ -2,7 +2,7 @@
     <div class="full-width full-height">
         <ModelCanvas
             :orthographic-mode="isOrthoMode"
-            v-model="modelName"
+            v-model="modelId"
         />
         <q-drawer
             bordered
@@ -15,7 +15,7 @@
                 <div class="q-pa-sm">
                     <q-btn label="戻る" @click="btnReturn_onClick"/>
                     <q-btn label="平行投影モード" @click="btnOrthographicMode_onClick"/>
-                    <q-input v-model="modelName"/>
+                    <small>{{ modelId }}</small>
                 </div>
             </q-scroll-area>
         </q-drawer>
@@ -25,6 +25,8 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 
+import { Global } from '@/renderer/Global';
+
 import { ModelCanvas } from '@/components/ModelCanvas';
 
 @Component({
@@ -33,16 +35,20 @@ import { ModelCanvas } from '@/components/ModelCanvas';
     }
 })
 export default class ModelView extends Vue {
-    private modelName = '';
+    private modelId = '';
 
     private isOrthoMode = false;
+
+    public mounted() {
+        this.modelId = Global.SelectedModelId || '';
+    }
 
     private btnOrthographicMode_onClick() {
         this.isOrthoMode = !this.isOrthoMode;
     }
 
     private btnReturn_onClick() {
-        this.$router.replace('modellist');
+        this.$router.back();
     }
 }
 </script>

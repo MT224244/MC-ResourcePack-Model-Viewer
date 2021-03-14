@@ -70,7 +70,9 @@ export class BlockModel extends THREE.Object3D implements IModel {
             delete this.textures[tex];
         }
 
-        this.errTexture.dispose();
+        if (this.errTexture) {
+            this.errTexture.dispose();
+        }
     }
 
     private async loadTextures() {
