@@ -11,14 +11,21 @@ export class ModelLoader {
     }
 
     /**
+     * ブロックのモデルデータを取得します
+     * @param id 名前空間ID
+     * @returns モデルデータ
+     */
+    public LoadModelData(id: string): ModelData {
+        const rootModelData = this.rpLoader.GetModelData(id);
+        return this.recursiveLoadModelData(rootModelData);
+    }
+
+    /**
      * ブロックのモデルを取得します
-     * @param name 名前空間ID(?)
+     * @param modelData モデルデータ
      * @returns THREE.Object3D
      */
-    public LoadModel(name: string): IModel {
-        const rootModelData = this.rpLoader.GetModelData(name);
-        const modelData = this.recursiveLoadModelData(rootModelData);
-
+    public LoadModel(modelData: ModelData): IModel {
         // 親が builtin/generated だった時はアイテムモデル
         if (modelData.parent && modelData.parent === 'builtin/generated') {
             return new ItemModel(this.rpLoader, modelData);
@@ -58,11 +65,19 @@ export class ModelLoader {
                 resultModelData.elements = modelData.elements;
             }
 
-            // texturesは親から子まで全て親優先でマージ
+            // texturesは親から子までマージ
             if (modelData.textures || parentModelData.textures) {
                 resultModelData.textures = {
-                    ...modelData.textures,
-                    ...parentModelData.textures
+                    ...parentModelData.textures,
+                    ...modelData.textures
+                };
+            }
+
+            // displayは親から子までマージ
+            if (modelData.display || parentModelData.display) {
+                resultModelData.display = {
+                    ...parentModelData.display,
+                    ...modelData.display
                 };
             }
 

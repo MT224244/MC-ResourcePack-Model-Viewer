@@ -1,6 +1,6 @@
 <template>
     <div class="full-width full-height">
-        <canvas ref="canvas" style="background: lightgrey"/>
+        <canvas ref="canvas"/>
         <q-resize-observer @resize="onResize"/>
     </div>
 </template>
@@ -135,7 +135,8 @@ export default class ModelCanvas extends Vue {
         }
 
         try {
-            this.model = this.modelLoader.LoadModel(this.modelName);
+            const modelData = this.modelLoader.LoadModelData(this.modelName);
+            this.model = this.modelLoader.LoadModel(modelData);
             this.scene.children[0].add(this.model);
         }
         catch {}
