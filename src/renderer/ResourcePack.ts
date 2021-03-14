@@ -34,7 +34,7 @@ export class ResourcePack implements IDisposable {
      * リソースパックのアイコン(Blob URL)
      */
     public get PackIcon() { return this.packIcon; }
-    private packIcon?: string;
+    private packIcon = '';
 
     public get ErrorMessage() { return this.errorMessage; }
     private errorMessage: string | null = null;
@@ -78,9 +78,7 @@ export class ResourcePack implements IDisposable {
             try {
                 this.packIcon = URL.createObjectURL(new Blob([this.readFile('pack.png')]));
             }
-            catch {
-                this.errorMessage = 'pack.png がありません';
-            }
+            catch {}
         }
         catch {
             this.Dispose();
