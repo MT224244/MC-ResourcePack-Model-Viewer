@@ -171,7 +171,7 @@ export class ItemModel extends THREE.Object3D implements IModel {
             }
         }
         else {
-            anm = defaultAnimation as Required<DefaultAnimation>;
+            anm = { ...defaultAnimation } as Required<DefaultAnimation>;
             anm.width = Math.max(img.width, img.height);
             anm.height = anm.width;
             anm.frames = [
