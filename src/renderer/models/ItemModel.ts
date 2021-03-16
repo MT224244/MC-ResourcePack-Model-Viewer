@@ -13,16 +13,12 @@ const defaultAnimation: DefaultAnimation = {
 };
 
 export class ItemModel extends THREE.Object3D implements IModel {
-    private rpLoader: ResourcePackLoader;
-
     private timer: TickTimer;
 
-    public constructor(rpLoader: ResourcePackLoader, modelData: ModelData) {
+    public constructor(modelData: ModelData) {
         super();
 
         this.timer = new TickTimer();
-
-        this.rpLoader = rpLoader;
 
         if (modelData.textures) {
             this.getTextures(modelData.textures).then(textures => {
@@ -113,7 +109,7 @@ export class ItemModel extends THREE.Object3D implements IModel {
         const result: { [key: string]: TextureData } = {};
 
         for (const texName of Object.keys(textures)) {
-            const texData = await this.rpLoader.GetTexture(textures[texName]);
+            const texData = await ResourcePackLoader.GetTexture(textures[texName]);
 
             result[texName] = texData;
         }

@@ -98,7 +98,7 @@
 <script lang="ts">
 import { Component, PropSync, Emit, Vue } from 'vue-property-decorator';
 
-import { Global } from '@/renderer/Global';
+import { ResourcePackLoader } from '@/renderer/ResourcePackLoader';
 import { ResourcePack } from '@/renderer/ResourcePack';
 
 @Component
@@ -114,7 +114,7 @@ export default class ResourcePackList extends Vue {
 
     public mounted() {
         // 配列の参照自体を渡してるので変更が連動する
-        this.resourcePacks = Global.ResourcePackLoader.ResourcePacks;
+        this.resourcePacks = ResourcePackLoader.ResourcePacks;
     }
 
     @Emit('input')
@@ -150,7 +150,7 @@ export default class ResourcePackList extends Vue {
         if (!this.selectedPack) return;
         let idx = this.selectedIdx;
 
-        Global.ResourcePackLoader.RemoveResourcePack(this.selectedPack.PackPath);
+        ResourcePackLoader.RemoveResourcePack(this.selectedPack.PackPath);
 
         if (this.resourcePacks.length > 0) {
             if (idx === 0) {

@@ -10,7 +10,6 @@ import { Component, Ref, Watch, Prop, PropSync, Vue } from 'vue-property-decorat
 import { CustomOrbitControls } from '@/renderer/CustomOrbitControls';
 import * as THREE from 'three';
 
-import { Global } from '@/renderer/Global';
 import { IModel } from '@/renderer/IModel';
 import { ModelLoader } from '@/renderer/ModelLoader';
 
@@ -36,7 +35,7 @@ export default class ModelCanvas extends Vue {
     private model: IModel | null = null;
 
     public mounted() {
-        this.modelLoader = new ModelLoader(Global.ResourcePackLoader);
+        this.modelLoader = new ModelLoader();
 
         // WebGLレンダラー作成
         this.renderer = new THREE.WebGLRenderer({

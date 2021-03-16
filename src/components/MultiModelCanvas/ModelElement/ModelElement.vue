@@ -39,7 +39,6 @@
 import { Component, Prop, Ref, Vue } from 'vue-property-decorator';
 import * as THREE from 'three';
 
-import { Global } from '@/renderer/Global';
 import { IModel } from '@/renderer/IModel';
 import { ModelLoader } from '@/renderer/ModelLoader';
 
@@ -77,7 +76,7 @@ export default class ModelElement extends Vue {
     public mounted() {
         this.scene = new THREE.Scene();
 
-        const modelLoader = new ModelLoader(Global.ResourcePackLoader);
+        const modelLoader = new ModelLoader();
 
         try {
             this.modelData = modelLoader.LoadModelData(this.id);

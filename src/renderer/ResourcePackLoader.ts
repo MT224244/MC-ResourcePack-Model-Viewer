@@ -2,14 +2,14 @@ import { ResourcePack } from '@/renderer/ResourcePack';
 import { generateErrTex } from '@/renderer/generateErrTex';
 
 export class ResourcePackLoader {
-    public get ResourcePacks() { return this.resourcePacks; }
-    private resourcePacks: ResourcePack[] = [];
+    public static get ResourcePacks() { return this.resourcePacks; }
+    private static resourcePacks: ResourcePack[] = [];
 
     /**
      * リソースパックを追加する
      * @param packPath リソパのパス(ディレクトリでもzipでも可)
      */
-    public AddResourcePack(packPath: string) {
+    public static AddResourcePack(packPath: string) {
         // 同じリソパは読み込まない
         if (this.resourcePacks.find(x => x.PackPath === packPath)) return;
 
@@ -26,7 +26,7 @@ export class ResourcePackLoader {
      * リソースパックを削除する
      * @param packPath リソパのパス
      */
-    public RemoveResourcePack(packPath: string) {
+    public static RemoveResourcePack(packPath: string) {
         const idx = this.resourcePacks.findIndex(x => x.PackPath === packPath);
         if (idx > -1) {
             this.resourcePacks[idx].Dispose();
@@ -37,7 +37,7 @@ export class ResourcePackLoader {
     /**
      * ブロックモデルの名前空間リストを取得する
      */
-    public GetBlockModelIds() {
+    public static GetBlockModelIds() {
         const array: string[] = [];
 
         for (const rp of this.resourcePacks) {
@@ -50,7 +50,7 @@ export class ResourcePackLoader {
     /**
      * アイテムモデルの名前空間リストを取得する
      */
-    public GetItemModelIds() {
+    public static GetItemModelIds() {
         const array: string[] = [];
 
         for (const rp of this.resourcePacks) {
@@ -65,7 +65,7 @@ export class ResourcePackLoader {
      * @param id 名前空間ID
      * @returns モデルデータ
      */
-    public GetModelData(id: string): ModelData {
+    public static GetModelData(id: string): ModelData {
         for (const rp of this.resourcePacks) {
             try {
                 return rp.GetModelData(id);
@@ -81,7 +81,7 @@ export class ResourcePackLoader {
      * @param id 名前空間ID
      * @returns テクスチャ
      */
-    public async GetTexture(id: string): Promise<TextureData> {
+    public static async GetTexture(id: string): Promise<TextureData> {
         for (const rp of this.resourcePacks) {
             try {
                 return await rp.GetTexture(id);

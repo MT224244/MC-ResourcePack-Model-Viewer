@@ -51,7 +51,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 
-import { Global } from '@/renderer/Global';
+import { ResourcePackLoader } from '@/renderer/ResourcePackLoader';
 
 import { SearchBox } from '@/components/SearchBox';
 import { EdgeIconBtn } from '@/components/EdgeIconBtn';
@@ -77,16 +77,16 @@ export default class ModelList extends Vue {
     private selectedModelType: ModelType = 'block';
 
     public mounted() {
-        this.allModelIds = Global.ResourcePackLoader.GetBlockModelIds();
+        this.allModelIds = ResourcePackLoader.GetBlockModelIds();
         this.modelIds = this.allModelIds;
     }
 
     private changeModelType(modelType: ModelType) {
         if (modelType === 'block') {
-            this.allModelIds = Global.ResourcePackLoader.GetBlockModelIds();
+            this.allModelIds = ResourcePackLoader.GetBlockModelIds();
         }
         else if (modelType === 'item') {
-            this.allModelIds = Global.ResourcePackLoader.GetItemModelIds();
+            this.allModelIds = ResourcePackLoader.GetItemModelIds();
         }
 
         this.selectedModelType = modelType;

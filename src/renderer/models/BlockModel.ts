@@ -11,7 +11,6 @@ const defaultAnimation: DefaultAnimation = {
 };
 
 export class BlockModel extends THREE.Object3D implements IModel {
-    private rpLoader: ResourcePackLoader;
     private modelData: ModelData;
     private textures: { [key: string]: TextureData; } = {};
 
@@ -19,12 +18,11 @@ export class BlockModel extends THREE.Object3D implements IModel {
 
     private timer: TickTimer;
 
-    public constructor(rpLoader: ResourcePackLoader, modelData: ModelData) {
+    public constructor(modelData: ModelData) {
         super();
 
         this.timer = new TickTimer();
 
-        this.rpLoader = rpLoader;
         this.modelData = modelData;
 
         this.loadTextures().then(() => {
@@ -78,7 +76,7 @@ export class BlockModel extends THREE.Object3D implements IModel {
     private async loadTextures() {
         if (this.modelData.textures) {
             for (const texName of Object.keys(this.modelData.textures)) {
-                const texData = await this.rpLoader.GetTexture(this.modelData.textures[texName]);
+                const texData = await ResourcePackLoader.GetTexture(this.modelData.textures[texName]);
 
                 this.textures[texName] = texData;
             }

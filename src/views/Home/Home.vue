@@ -27,7 +27,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 
-import { Global } from '@/renderer/Global';
+import { ResourcePackLoader } from '@/renderer/ResourcePackLoader';
 import { ResourcePack } from '@/renderer/ResourcePack';
 
 import { ResourcePackList } from '@/components/ResourcePackList';
@@ -68,7 +68,7 @@ export default class Home extends Vue {
 
         if (ev.dataTransfer) {
             for (const file of ev.dataTransfer.files) {
-                Global.ResourcePackLoader.AddResourcePack(file.path);
+                ResourcePackLoader.AddResourcePack(file.path);
             }
         }
     }

@@ -4,19 +4,13 @@ import { BlockModel } from '@/renderer/models/BlockModel';
 import { ItemModel } from '@/renderer/models/ItemModel';
 
 export class ModelLoader {
-    private rpLoader: ResourcePackLoader;
-
-    public constructor(rpLoader: ResourcePackLoader) {
-        this.rpLoader = rpLoader;
-    }
-
     /**
      * ブロックのモデルデータを取得します
      * @param id 名前空間ID
      * @returns モデルデータ
      */
     public LoadModelData(id: string): ModelData {
-        const rootModelData = this.rpLoader.GetModelData(id);
+        const rootModelData = ResourcePackLoader.GetModelData(id);
         return this.recursiveLoadModelData(rootModelData);
     }
 
@@ -28,12 +22,12 @@ export class ModelLoader {
     public LoadModel(modelData: ModelData): IModel {
         // 親が builtin/generated だった時はアイテムモデル
         if (modelData.parent && modelData.parent === 'builtin/generated') {
-            return new ItemModel(this.rpLoader, modelData);
+            return new ItemModel(modelData);
         }
 
         // TODO: builtin/entity に対応する(そのうち)
 
-        return new BlockModel(this.rpLoader, modelData);
+        return new BlockModel(modelData);
     }
 
     /**
@@ -50,7 +44,7 @@ export class ModelLoader {
                 return modelData;
             }
 
-            const parentModelData = this.rpLoader.GetModelData(modelData.parent);
+            const parentModelData = ResourcePackLoader.GetModelData(modelData.parent);
 
             // 親優先でマージ
             resultModelData = {
