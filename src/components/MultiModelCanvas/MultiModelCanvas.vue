@@ -2,17 +2,26 @@
     <div class="full-width full-height row">
         <q-list class="full-width full-height">
             <q-virtual-scroll
-                :items="modelIds"
+                :items="items"
                 :virtual-scroll-item-size="100"
                 :virtual-scroll-slice-size="1"
                 class="full-height"
             >
                 <template v-slot="{ item, index }">
                     <ModelElement
+                        v-if="item.modelId"
+                        :ref="`item${index}`"
+                        :key="index"
+                        :id="item.modelId"
+                        :predicateData="item"
+                        @click="(id, modelData) => $emit('item-click', id, modelData)"
+                    />
+                    <ModelElement
+                        v-else
                         :ref="`item${index}`"
                         :key="index"
                         :id="item"
-                        @click="emitItemClick"
+                        @click="(id, modelData) => $emit('item-click', id, modelData)"
                     />
                 </template>
             </q-virtual-scroll>
@@ -22,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Ref, Emit, Vue } from 'vue-property-decorator';
+import { Component, Prop, Ref, Vue } from 'vue-property-decorator';
 import * as THREE from 'three';
 
 import { ModelElement } from '@/components/MultiModelCanvas/ModelElement';
@@ -34,7 +43,7 @@ import { ModelElement } from '@/components/MultiModelCanvas/ModelElement';
 })
 export default class MultiModelCanvas extends Vue {
     @Prop({ type: Array, required: true })
-    private readonly modelIds!: string[];
+    private readonly items!: (string | PredicateData)[];
 
     @Ref('canvas')
     private canvas!: HTMLCanvasElement;
@@ -59,14 +68,9 @@ export default class MultiModelCanvas extends Vue {
         this.renderer = null;
     }
 
-    @Emit('item-click')
-    private emitItemClick(modelData: ModelData) {
-        return modelData;
-    }
-
     private animationFrame() {
         if (!this.renderer) return;
-        if (this.modelIds.length <= 0) {
+        if (this.items.length <= 0) {
             this.renderer.clear();
             requestAnimationFrame(this.animationFrame.bind(this));
             return;

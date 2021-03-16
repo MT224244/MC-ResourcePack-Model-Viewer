@@ -134,6 +134,14 @@ type TextureData = {
     animation?: TextureMcMeta['animation'];
 };
 
+type PredicateData = {
+    predicates: {
+        name: string;
+        value: number;
+    }[];
+    modelId: string;
+};
+
 interface DefaultAnimation extends Exclude<TextureMcMeta['animation'], undefined> {
     interpolate: boolean;
     frametime: number;

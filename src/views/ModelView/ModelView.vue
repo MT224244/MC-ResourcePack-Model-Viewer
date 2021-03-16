@@ -1,36 +1,45 @@
 <template>
     <div class="full-width full-height">
-        <ModelCanvas
-            :orthographic-mode="isOrthoMode"
-            v-model="modelId"
-        />
-        <q-drawer
-            bordered
-            side="left"
-            :width="200"
-            :breakpoint="0"
-            :value="true"
-        >
-            <q-scroll-area class="fit">
-                <div class="q-pa-sm">
-                    <q-btn label="戻る" @click="btnReturn_onClick"/>
-                    <q-btn label="平行投影モード" @click="btnOrthographicMode_onClick"/>
-                    <small>{{ modelId }}</small>
+        <q-splitter unit="px" :value="250" disable class="full-height">
+            <template #before>
+                <div class="column full-height q-py-md">
+                    <div
+                        class="full-width text-caption text-weight-bold q-px-sm"
+                        style="overflow-wrap: anywhere;"
+                    >{{ modelId }}</div>
+                    <div class="row items-center justify-between q-mt-md q-pl-md q-pr-sm">
+                        <span>平行投影</span>
+                        <q-toggle v-model="isOrthoMode"/>
+                    </div>
+                    <q-space/>
+                    <EdgeIconBtn
+                        flat
+                        square
+                        label="戻る"
+                        icon="mdi-chevron-left"
+                        @click="btnReturn_onClick"
+                    />
                 </div>
-            </q-scroll-area>
-        </q-drawer>
+            </template>
+            <template #after>
+                <ModelCanvas
+                    :orthographic-mode="isOrthoMode"
+                    v-model="modelId"
+                />
+            </template>
+        </q-splitter>
     </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 
-import { Global } from '@/renderer/Global';
-
+import { EdgeIconBtn } from '@/components/EdgeIconBtn';
 import { ModelCanvas } from '@/components/ModelCanvas';
 
 @Component({
     components: {
+        EdgeIconBtn,
         ModelCanvas
     }
 })
@@ -40,11 +49,11 @@ export default class ModelView extends Vue {
     private isOrthoMode = false;
 
     public mounted() {
-        this.modelId = Global.SelectedModelId || '';
-    }
+        const { id } = this.$route.query;
 
-    private btnOrthographicMode_onClick() {
-        this.isOrthoMode = !this.isOrthoMode;
+        if (typeof id === 'string') {
+            this.modelId = id;
+        }
     }
 
     private btnReturn_onClick() {

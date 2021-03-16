@@ -5,7 +5,7 @@
         class="q-py-xs q-px-md"
         :class="!isSupported && 'text-red'"
         :disable="!isSupported"
-        @click="emitClick"
+        @click="$emit('click', id, modelData)"
     >
         <q-item-section avatar>
             <div ref="element" class="element"></div>
@@ -20,15 +20,23 @@
                 class="non-selectable text-caption text-grey"
             >ModelType: {{ type }}</q-item-label>
             <q-item-label
+                v-if="predicateData"
                 lines="1"
                 class="non-selectable text-caption text-grey"
-            >Overrides: {{ isOverride ? 'Yes' : 'No' }}</q-item-label>
+            >
+                {{ predicateData.predicates.map(x => `${x.name}: ${x.value}`).join(', ') }}
+            </q-item-label>
+            <q-item-label
+                v-else-if="overridesCount > 0"
+                lines="1"
+                class="non-selectable text-caption text-grey"
+            >Overrides: {{ overridesCount }}</q-item-label>
         </q-item-section>
     </q-item>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Ref, Emit, Vue } from 'vue-property-decorator';
+import { Component, Prop, Ref, Vue } from 'vue-property-decorator';
 import * as THREE from 'three';
 
 import { Global } from '@/renderer/Global';
@@ -48,12 +56,17 @@ export default class ModelElement extends Vue {
     @Prop({ type: String, required: true })
     private readonly id!: string;
 
+    @Prop({ type: Object, required: false, default: undefined })
+    private readonly predicateData?: PredicateData;
+
     @Ref('element')
     private element!: HTMLDivElement;
 
+    private modelData: ModelData | null = null;
+
     private type: ModelType = 'Unknown';
 
-    private isOverride = false;
+    private overridesCount = 0;
 
     private get isSupported() {
         if (this.type === 'Block') return true;
@@ -67,16 +80,16 @@ export default class ModelElement extends Vue {
         const modelLoader = new ModelLoader(Global.ResourcePackLoader);
 
         try {
-            const modelData = modelLoader.LoadModelData(this.id);
-            const model = modelLoader.LoadModel(modelData);
+            this.modelData = modelLoader.LoadModelData(this.id);
+            const model = modelLoader.LoadModel(this.modelData);
             model.position.set(-8, -8, -8);
             this.scene.add(model);
 
-            if (modelData.parent) {
-                if (modelData.parent === 'builtin/generated') {
+            if (this.modelData.parent) {
+                if (this.modelData.parent === 'builtin/generated') {
                     this.type = 'Item';
                 }
-                else if (modelData.parent === 'builtin/entity') {
+                else if (this.modelData.parent === 'builtin/entity') {
                     this.type = 'Entity';
                 }
                 else {
@@ -87,15 +100,15 @@ export default class ModelElement extends Vue {
                 this.type = 'Block';
             }
 
-            if (modelData.overrides) {
-                this.isOverride = true;
+            if (this.modelData.overrides) {
+                this.overridesCount = this.modelData.overrides.length;
             }
 
             const light = new THREE.AmbientLight('white');
             this.scene.add(light);
 
-            if (modelData.display && modelData.display.gui) {
-                const { rotation, translation, scale } = modelData.display.gui;
+            if (this.modelData.display && this.modelData.display.gui) {
+                const { rotation, translation, scale } = this.modelData.display.gui;
 
                 // rotation
                 if (rotation) {
@@ -157,11 +170,7 @@ export default class ModelElement extends Vue {
         this.scene.remove(light);
 
         this.scene = null;
-    }
-
-    @Emit('click')
-    private emitClick() {
-        return this.id;
+        this.modelData = null;
     }
 }
 </script>
