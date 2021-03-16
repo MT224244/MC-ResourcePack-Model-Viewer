@@ -31,8 +31,8 @@ export class BlockModel extends THREE.Object3D implements IModel {
             if (modelData.elements) {
                 for (const element of modelData.elements) {
                     this.add(this.createCube(element));
-                    this.timer.Start();
                 }
+                this.timer.Start();
             }
         });
     }
