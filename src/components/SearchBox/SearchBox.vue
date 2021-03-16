@@ -4,7 +4,7 @@
         filled
         square
         clearable
-        label="Search"
+        label="検索"
         v-model="searchText"
         @input="emitInput"
     >
