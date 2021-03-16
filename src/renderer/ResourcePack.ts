@@ -171,7 +171,7 @@ export class ResourcePack implements IDisposable {
     private getModelIds(target: 'block' | 'item') {
         try {
             if (this.zipData) {
-                const regex = new RegExp(`^assets/([^/]*)/models/${target}/([^.]*)\\.json`);
+                const regex = new RegExp(`^assets/([^/]*)/models/${target}/([^./]*)\\.json`);
 
                 return this.zipData.getEntries()
                     .filter(x => x.entryName.startsWith('assets'))
