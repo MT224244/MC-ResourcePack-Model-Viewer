@@ -19,7 +19,7 @@
             >
                 <template #before>
                     <div class="column no-wrap full-height q-py-md">
-                        <q-tabs
+                        <!-- <q-tabs
                             dense
                             no-caps
                             vertical
@@ -30,7 +30,7 @@
                         >
                             <q-tab name="settings" label="Settings" icon="mdi-cog"/>
                         </q-tabs>
-                        <q-space/>
+                        <q-space/> -->
                         <q-tabs
                             dense
                             no-caps
@@ -72,12 +72,12 @@
 <script lang="ts">
 import { Component, PropSync, Vue } from 'vue-property-decorator';
 
-import { SettingsTab } from '@/components/SettingsDialog/tabs/SettingsTab';
-import { AboutTab } from '@/components/SettingsDialog/tabs/AboutTab';
-import { LicensesTab } from '@/components/SettingsDialog/tabs/LicensesTab';
+import { SettingsTab } from '@/components/AboutDialog/tabs/SettingsTab';
+import { AboutTab } from '@/components/AboutDialog/tabs/AboutTab';
+import { LicensesTab } from '@/components/AboutDialog/tabs/LicensesTab';
 
 type TabName =
-    | 'settings'
+    // | 'settings'
     | 'information'
     | 'licenses';
 
@@ -88,11 +88,11 @@ type TabName =
         LicensesTab
     }
 })
-export default class SettingsDialog extends Vue {
+export default class AboutDialog extends Vue {
     @PropSync('value')
     public isOpen!: boolean;
 
-    public selectedTab: TabName = 'settings';
+    public selectedTab: TabName = 'information';
 }
 </script>
 

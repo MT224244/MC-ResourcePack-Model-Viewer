@@ -48,7 +48,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 
-import { ExternalLinkButton } from '@/components/SettingsDialog/ExternalLinkButton';
+import { ExternalLinkButton } from '@/components/AboutDialog/ExternalLinkButton';
 
 import { description, version, repository, license } from '@/../package.json';
 

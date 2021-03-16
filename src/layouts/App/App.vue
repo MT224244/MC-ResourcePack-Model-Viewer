@@ -7,10 +7,10 @@
             <q-space/>
 
             <SystemButton
-                icon="mdi-cog"
-                tooltip="Settings"
-                :color="isSettingsDialogOpen ? 'grey-7' : undefined"
-                @click="isSettingsDialogOpen = !isSettingsDialogOpen"
+                icon="mdi-information-outline"
+                tooltip="About"
+                :color="isAboutDialogOpen ? 'grey-7' : undefined"
+                @click="isAboutDialogOpen = !isAboutDialogOpen"
             />
 
             <q-separator vertical class="q-mx-xs q-my-xs"/>
@@ -33,7 +33,7 @@
             <router-view/>
         </q-page-container>
 
-        <SettingsDialog v-model="isSettingsDialogOpen"/>
+        <AboutDialog v-model="isAboutDialogOpen"/>
     </q-layout>
 </template>
 
@@ -45,12 +45,12 @@ import { IpcRenderer } from '@/renderer/IpcRenderer';
 import { version } from '@/../package.json';
 
 import { SystemButton } from '@/components/SystemButton';
-import { SettingsDialog } from '@/components/SettingsDialog';
+import { AboutDialog } from '@/components/AboutDialog';
 
 @Component({
     components: {
         SystemButton,
-        SettingsDialog
+        AboutDialog
     },
     data: () => ({
         version
@@ -61,7 +61,7 @@ export default class App extends Vue {
 
     public isMaximize = false;
 
-    public isSettingsDialogOpen = false;
+    public isAboutDialogOpen = false;
 
     public mounted() {
         IpcRenderer.On('maximize', (_, isMaximize) => {
