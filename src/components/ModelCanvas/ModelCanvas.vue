@@ -53,7 +53,9 @@ export default class ModelCanvas extends Vue {
         // 透視投影カメラ
         const aspect = this.$el.clientWidth / this.$el.clientHeight;
         this.perspectiveCamera = new THREE.PerspectiveCamera(45, aspect, 1, 2000);
-        this.perspectiveCamera.position.z = 50;
+        this.perspectiveCamera.position.x = 20;
+        this.perspectiveCamera.position.y = 20;
+        this.perspectiveCamera.position.z = 30;
 
         // 平行投影カメラ
         const frustumLR = this.$el.clientWidth / 30;
@@ -65,8 +67,6 @@ export default class ModelCanvas extends Vue {
         this.controls = new CustomOrbitControls(this.perspectiveCamera, this.orthographicCamera, this.canvas);
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.1;
-        this.controls.minDistance = 10;
-        this.controls.maxDistance = 100;
         this.controls.update();
 
         // 全てのオブジェクトの親
