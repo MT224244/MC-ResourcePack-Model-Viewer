@@ -2,7 +2,7 @@
     <div class="full-width full-height">
         <q-splitter unit="px" :value="250" disable class="full-height">
             <template #before>
-                <div class="column full-height q-py-md">
+                <div class="column no-wrap full-height q-py-md">
                     <div
                         class="full-width text-caption text-weight-bold q-px-sm"
                         style="overflow-wrap: anywhere;"
@@ -24,6 +24,7 @@
             <template #after>
                 <ModelCanvas
                     :orthographic-mode="isOrthoMode"
+                    class="no-scroll"
                     v-model="modelId"
                 />
             </template>

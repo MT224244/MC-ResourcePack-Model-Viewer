@@ -2,7 +2,7 @@
     <div class="full-width full-height">
         <q-splitter unit="px" :value="250" disable class="full-height">
             <template #before>
-                <div class="column full-height q-py-md">
+                <div class="column no-wrap full-height q-py-md">
                     <div>
                         <SearchBox v-model="searchText" @input="search"/>
                         <q-list dense class="q-mt-md modeltype-list">
