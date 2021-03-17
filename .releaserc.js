@@ -16,7 +16,15 @@ module.exports = {
                 ]
             }
         ],
-        '@semantic-release/git'
+        [
+            '@semantic-release/git',
+            {
+                assets: [
+                    'package.json',
+                    'CHANGELOG.md'
+                ]
+            }
+        ]
     ],
     branches: [
         'release',
