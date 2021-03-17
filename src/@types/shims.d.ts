@@ -165,15 +165,13 @@ type IpcIHArgs = {
         return: void;
     };
 
-    'MCDirPicker_request-defaultMcDirPath': {
+    'ResourcePackList_open-dirpicker': {
         args: [];
-        return: string;
+        return: string[] | undefined;
     };
-    'MCDirPicker_open-dir-picker': {
-        args: [
-            currentPath: string
-        ];
-        return?: string;
+    'ResourcePackList_open-filepicker': {
+        args: [];
+        return: string[] | undefined;
     };
 };
 

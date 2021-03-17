@@ -1,7 +1,6 @@
-import { app, protocol, shell, dialog, BrowserWindow, NewWindowWebContentsEvent, IpcMainInvokeEvent } from 'electron';
+import { app, protocol, shell, dialog, BrowserWindow, NewWindowWebContentsEvent } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
-import path from 'path';
 
 import { IpcMain } from '@/main/IpcMain';
 
@@ -102,19 +101,31 @@ const ipcMain_handleAppClose = () => {
     win.destroy();
 };
 
-const ipcMain_handleMCDirPickerRequestDefaultMcDirPath = () => {
-    return path.join(app.getPath('appData'), '.minecraft');
-};
-
-const ipcMain_handleMCDirPickerOpenDirPicker = (_e: IpcMainInvokeEvent, currentPath: string) => {
+const ipcMain_handleResourcePackListOpenDirPicker = () => {
     const dirs = dialog.showOpenDialogSync(win, {
         properties: [
-            'openDirectory'
-        ],
-        defaultPath: currentPath
+            'openDirectory',
+            'multiSelections'
+        ]
     });
 
-    return dirs ? dirs[0] : undefined;
+    return dirs;
+};
+const ipcMain_handleResourcePackListOpenFilePicker = () => {
+    const dirs = dialog.showOpenDialogSync(win, {
+        properties: [
+            'openFile',
+            'multiSelections'
+        ],
+        filters: [
+            {
+                name: 'ResourcePacks',
+                extensions: ['zip', 'jar']
+            }
+        ]
+    });
+
+    return dirs;
 };
 
 // #endregion
@@ -141,8 +152,8 @@ const createWindow = async () => {
     IpcMain.Handle('App_maximize', ipcMain_handleAppMaximize);
     IpcMain.Handle('App_close', ipcMain_handleAppClose);
 
-    IpcMain.Handle('MCDirPicker_request-defaultMcDirPath', ipcMain_handleMCDirPickerRequestDefaultMcDirPath);
-    IpcMain.Handle('MCDirPicker_open-dir-picker', ipcMain_handleMCDirPickerOpenDirPicker);
+    IpcMain.Handle('ResourcePackList_open-dirpicker', ipcMain_handleResourcePackListOpenDirPicker);
+    IpcMain.Handle('ResourcePackList_open-filepicker', ipcMain_handleResourcePackListOpenFilePicker);
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         // Load the url of the dev server if in development mode

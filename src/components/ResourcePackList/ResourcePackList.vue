@@ -98,6 +98,7 @@
 <script lang="ts">
 import { Component, PropSync, Emit, Vue } from 'vue-property-decorator';
 
+import { IpcRenderer } from '@/renderer/IpcRenderer';
 import { ResourcePackLoader } from '@/renderer/ResourcePackLoader';
 import { ResourcePack } from '@/renderer/ResourcePack';
 
@@ -123,11 +124,23 @@ export default class ResourcePackList extends Vue {
     }
 
     private btnAddFolder_onClick() {
-        // TODO:
+        IpcRenderer.Invoke('ResourcePackList_open-dirpicker').then(paths => {
+            if (!paths) return;
+
+            for (const dirPath of paths) {
+                ResourcePackLoader.AddResourcePack(dirPath);
+            }
+        });
     }
 
     private btnAddZip_onClick() {
-        // TODO:
+        IpcRenderer.Invoke('ResourcePackList_open-filepicker').then(paths => {
+            if (!paths) return;
+
+            for (const filePath of paths) {
+                ResourcePackLoader.AddResourcePack(filePath);
+            }
+        });
     }
 
     private btnMoveUp_onClick() {
