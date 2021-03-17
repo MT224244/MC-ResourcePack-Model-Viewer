@@ -46,7 +46,7 @@ type ModelType =
     | 'Block'
     | 'Item'
     | 'Entity'
-    | 'Unknown';
+    | '-';
 
 @Component
 export default class ModelElement extends Vue {
@@ -63,7 +63,7 @@ export default class ModelElement extends Vue {
 
     private modelData: ModelData | null = null;
 
-    private type: ModelType = 'Unknown';
+    private type: ModelType = '-';
 
     private overridesCount = 0;
 
@@ -92,8 +92,11 @@ export default class ModelElement extends Vue {
                     this.type = 'Entity';
                 }
                 else {
-                    this.type = 'Unknown';
+                    this.type = '-';
                 }
+            }
+            else if (!this.modelData.elements) {
+                this.type = '-';
             }
             else {
                 this.type = 'Block';
