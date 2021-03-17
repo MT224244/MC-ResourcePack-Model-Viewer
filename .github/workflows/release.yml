@@ -21,8 +21,7 @@ jobs:
             with:
                 node-version: 14.x
 
-          - run: rm -rf node_modules
-          - run: rm -rf dist_electron
+          - run: npx rimraf node_modules dist_electron
           - run: yarn --frozen-lockfile --non-interactive
           - run: yarn electron:build
           - run: yarn semantic-release
