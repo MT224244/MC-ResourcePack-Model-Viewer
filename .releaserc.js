@@ -37,12 +37,8 @@ module.exports = {
     ],
     branches: [
         {
-            name: 'release'
-        },
-        {
             name: 'beta',
-            channel: 'beta',
-            prerelease: 'beta'
+            prerelease: true
         }
     ]
 };
