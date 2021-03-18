@@ -41,7 +41,8 @@ module.exports = {
         },
         {
             name: 'beta',
-            prerelease: true
+            channel: 'beta',
+            prerelease: 'beta'
         }
     ]
 };
