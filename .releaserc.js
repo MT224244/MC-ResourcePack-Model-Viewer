@@ -9,7 +9,7 @@ module.exports = {
             {
                 prepareCmd: 'yarn electron:build'
             }
-        ]
+        ],
         [
             '@semantic-release/github',
             {
