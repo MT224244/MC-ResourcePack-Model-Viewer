@@ -1,7 +1,7 @@
 {
     "name": "mc-resourcepack-model-viewer",
     "description": "リソースパックのモデルを表示できるだけのツールです",
-    "version": "0.1.0",
+    "version": "1.0.0-beta.1",
     "author": "MT224244",
     "repository": "https://github.com/MT224244/MC-ResourcePack-Model-Viewer.git",
     "main": "background.js",
