@@ -36,6 +36,12 @@ module.exports = {
         ]
     ],
     branches: [
-        'release'
+        {
+            name: 'release'
+        },
+        {
+            name: 'beta',
+            prerelease: true
+        }
     ]
 };
