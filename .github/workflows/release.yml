@@ -23,5 +23,4 @@ jobs:
 
           - run: npx rimraf node_modules dist_electron
           - run: yarn --frozen-lockfile --non-interactive
-          - run: yarn electron:build
           - run: yarn semantic-release
