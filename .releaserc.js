@@ -34,11 +34,5 @@ module.exports = {
                 ]
             }
         ]
-    ],
-    branches: [
-        {
-            name: 'beta',
-            prerelease: true
-        }
     ]
 };
