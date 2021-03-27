@@ -7,6 +7,8 @@
 
 Minecraftのリソースパックのブロック/アイテムモデルを表示するツールです
 
+![](https://user-images.githubusercontent.com/25514849/112715791-c5cc6200-8f25-11eb-8a11-44c8d85eea2a.png)
+
 ## License
 
 [MIT][License]
